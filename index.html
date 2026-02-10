@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      font-size: larger;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 1em;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    #speak {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+
+    main {
+      max-width: 600px;
+      background: white;
+      padding: 1.5em;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background: none;
+      border: 2px solid #0078d4;
+      color: #0078d4;
+      font-size: 20px;
+      margin: 5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0078d4;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input[type="number"] {
+      font-size: 14px;
+      width: 60px;
+      margin-right: 10px;
+      text-align: center;
+    }
+
+    #keyWords {
+      text-align: center;
+      color: #0078d4;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+
+    #english {
+      color: #444;
+    }
+
+    #q {
+      background: #0078d4;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      margin-top: 1em;
+      text-align: center;
+    }
+
+    details {
+      margin-top: 0.5em;
+    }
+
+    small {
+      color: #777;
+      font-weight: normal;
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 1em 0;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    footer span {
+      color: #0078d4;
+      font-weight: bold;
+    }
+
+    section.general.info,
+    section.activity {
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    section.general.info details,
+    section.activity details {
+      display: block;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      margin: 0.5em 0;
+    }
+
+    section.general.info details summary,
+    section.activity details summary {
+      cursor: pointer;
+      font-weight: bold;
+      color: #0078d4;
+      margin-bottom: 10px;
+    }
+
+    section.general.info details summary::-webkit-details-marker,
+    section.activity details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+    #arabic{
+      direction: rtl;
+      text-align: right;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0.6em;
+      }
+      #q { font-size: 0.9em; }
+      button { font-size: 18px; padding: 4px 8px; }
+    }
+    #objectives{
+      color: red;
+    }
+    #questionBasedOnAudio{
+      color: blue;
+      text-align: left;
+    }
+    main {
+      overflow-y: auto;
+    }
+    #questionBasedOnAudio li,
+      #answer li {
+    margin-bottom: 0.8em;
+    }
+    #questionBasedOnAudio ol { padding-left: 1em; }
+    .tts-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap; /* keeps it mobile-friendly */
+    }
+  </style>
+</head>
+
+<body>
+  
+  <main>
+   
+    <p id="speaker"></p>
+    <p id="q"></p>
+    <p id="keyWords"></p>
+
+    <details id="definition">
+      <summary>Definition</summary>
+      <p id="def"></p>
+    </details>
+
+    <details id="illustrations" style="display:none;">
+      <summary>Illustration</summary>
+      <img id="image" alt="Illustration" width="200" height="200" style="display:none;">
+    </details>
+
+    <details id="englishDetails">
+      <summary>Audio Script</summary>
+      <p id="english"></p>
+     <div class="tts-buttons">
+        <button id="speak">TTS-All text</button>
+        <button id="speakSelection">TTS-Selected</button>
+    </div>
+    </details>
+
+    <details id="arabicDetails">
+      <summary>Arabic</summary>
+      <p id="arabic"></p>
+    </details>
+
+    <!-- Dynamic labels -->
+    <p id="refer_to_container"><strong>Refer to:</strong> <span id="refer_to"></span></p>
+    <p id="back_to_container"><strong>Back to:</strong> <span id="back_to"></span></p>
+
+    <audio id="audio" controls>
+      <source src="" type="audio/mp3" />
+      Your browser does not support the audio element.
+    </audio>
+    <hr>
+
+    <div class="controls">
+      <input type="number" id="audioIndex" min="1" placeholder="#" />
+      <button id="search">&#128269;</button>
+      <button id="prev">&#9664;</button>
+      <button id="next">&#9654;</button>
+      <label>
+        <input type="checkbox" id="autoPlay" unchecked />
+        Auto play next audio clip
+      </label>
+      <div id="questionBasedOnAudio"></div>
+    </div>
+
+    <div>
+      <details id="answerDetails">
+        <summary>Answer</summary>
+        <div id="answer"></div>
+      </details>
+    </div>
+    <hr>
+
+    <small>💡 Tip: Use ← / → to navigate.</small>
+  </main>
+
+  <footer>
+    <p>Created by <span>Eltayeb Mohamed</span> | <span>© 2025 Eltayeb Mohamed</span>. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const utterance = new SpeechSynthesisUtterance();
+    let currentAudioIndex = 0;
+
+    const Sentences = [
+      // 1
+      {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Friend:	These apples look good, John. Do you want to get some?<br>
+          John:	Um, are they organic?<br>
+          Friend:	Uh, no, they’re not.<br>
+          John:	Well, I only buy organic apples.<br>
+          Friend:	Really? Why?<br>
+          John:	Because in my opinion, they have a great flavor. They taste delicious.	
+
+
+
+         
+        `,
+        arabic: ` 
+       
+
+            الصديق: تبدو هذه التفاحات جيدة يا جون. هل تريد أن نشتري بعضًا منها؟
+            جون: أمم، هل هي عضوية؟
+            الصديق: آه، لا، ليست عضوية.
+            جون: حسنًا، أنا أشتري التفاح العضوي فقط.
+            الصديق: حقًا؟ لماذا؟
+            جون: لأنني في رأيي لها نكهة رائعة. طعمها لذيذ.
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Q3eSE_LS0_U03_03_ListeningSkill_ActivityA_1.mp3`,
+        audioQuestion: `
+           <ol>
+            <li>What do the apples look like?</li>
+            <li>Who is speaking with John?</li>
+            <li>Are the apples organic?</li>
+            <li>Does John buy the apples?</li>
+            <li>Does John like organic apples?</li>
+                                
+           </ol>
+        
+        `,
+        answer: `
+            <ol>
+                <li>They look good.</li>
+                <li>A friend is speaking with John.</li>
+                <li>No, the apples are not organic.</li>
+                <li>No, John does not buy the apples.</li>
+                <li>Yes, John likes organic apples.</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 2
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+        
+           These apples look good, John.
+
+         
+        `,
+        arabic: ` 
+              
+
+            الصديق: تبدو هذه التفاحات جيدة يا جون.
+    
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `These apples look good, John.mp3`,
+        audioQuestion: `
+          <ol>
+            <li>What do the apples look like?</li>
+           
+           </ol>
+        
+        `,
+        answer: `
+             <ol>
+                <li>They look good.</li>
+                
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 3
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Do you want to get some?
+        `,
+        arabic: ` 
+         هل تريد أن نشتري بعضًا منها؟
+           
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Do you want to get some.mp3`,
+        audioQuestion: `
+           <ol>
+            <li> Does John want to buy the apples?</li>
+                                
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+               <li> No, he doesn't.</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 4
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Um, are they organic?
+        `,
+        arabic: ` 
+         جون: أمم، هل هي عضوية؟
+           
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Um, are they organic.mp3`,
+        audioQuestion: `
+           <ol>
+            <li> What does 'they' refer to?</li>
+                                
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+              <li> The apples.</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 5
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Uh, no, they’re not.
+        `,
+        arabic: ` 
+            الصديق: آه، لا، ليست عضوية.
+            
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Uh, no, they’re not.mp3`,
+        audioQuestion: `
+           <ol>
+            <li> What does 'organic' mean?</li>
+                                
+            </ol>
+            
+        
+        `,
+        answer: `
+            <ol>
+              <li> Natural.</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 6
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Well, I only buy organic apples.
+        `,
+        arabic: ` 
+        .
+           حسنًا، أنا أشتري التفاح العضوي فقط.
+           
+          `
+          ,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Well, I only buy organic apples.mp3`,
+        audioQuestion: `
+           <ol>
+            <li>What does John buy?</li>
+                                
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+              <li> Organic applyes.</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 7
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Really?  Why?
+        `,
+        arabic: ` 
+         الصديق: حقًا؟ لماذا؟
+           
+         
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Really Why.mp3`,
+        audioQuestion: `
+           <ol>
+            <li> Who is asking the question?</li>
+                                
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+              <li> John's friend.</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 8
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Because in my opinion, they have a great flavor.
+        `,
+        arabic: ` 
+
+            جون: لأنها في رأيي لها نكهة رائعة.
+         
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Because in my opinion, they have a great flavor.mp3`,
+        audioQuestion: `
+           <ol>
+            <li> Why does John buy organic apples?/<li>
+                                
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+              <li> Why does John buy organic apples/<li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 9
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         Because in my opinion,
+        `,
+        arabic: ` 
+          جون: لأنها في رأيي   .
+         
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Because in my opinion.mp3`,
+        audioQuestion: `
+           <ol>
+            <li> Whatis another of saying ' in my opinion '?
+                                
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+              <li> I think. </li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 10
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         They have a great flavor.
+        `,
+        arabic: ` 
+         جون:  لها نكهة رائعة.
+         
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `they have a great flavor.mp3`,
+        audioQuestion: `
+           <ol>
+              <li> Why does John buy organic apples?</li>    
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+              <li> They have a great flavor.</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 11
+            {
+        speaker: ``,
+        keyWord: ``,
+        definition: ``,
+        english: `
+         They taste delicious.
+        `,
+        arabic: ` 
+           طعمها لذيذ.
+          `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `They taste delicious.mp3`,
+        audioQuestion: `
+           <ol>
+                   <li> Why does John buy organic apples?</li>                
+            </ol>
+        
+        `,
+        answer: `
+            <ol>
+              <li> They taste delicious</li>
+                
+            </ol>
+        
+        `,
+        Image:``
+      },
+      // 12
+         
+
+    ];
+    const speakSelectionBtn = document.getElementById("speakSelection");
+    const speakBtn = document.getElementById("speak");
+
+    const q = document.getElementById("q");
+    const refer_to = document.getElementById("refer_to");
+    const back_to = document.getElementById("back_to");
+    const speaker = document.getElementById("speaker");
+    const keyWords = document.getElementById("keyWords");
+    const def = document.getElementById("def");
+    const english = document.getElementById("english");
+    const arabic = document.getElementById("arabic");
+    const audio = document.getElementById("audio");
+    const image = document.getElementById("image");
+    const illustrationDetails = document.getElementById("illustrations");
+    const questionBasedOnAudio = document.getElementById("questionBasedOnAudio");
+    const audioIndexInput = document.getElementById("audioIndex");
+    const autoPlayCheckbox = document.getElementById("autoPlay");
+
+    const definitionDetails = document.getElementById("definition");
+    const englishDetails = document.getElementById("englishDetails");
+    const arabicDetails = document.getElementById("arabicDetails");
+    const answer = document.getElementById("answer");
+    const answerDetails = document.getElementById("answerDetails");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+
+     /* existing: read all text */
+    speakBtn.addEventListener("click", () => {
+        const s = Sentences[currentAudioIndex];  // your current sentence object
+        if (s.english?.trim()) {                 // check if English text exists
+          utterance.text = s.english;            // set text to speak
+          speechSynthesis.cancel();              // stop any previous speech
+          speechSynthesis.speak(utterance);      // speak the text
+        }
+      });
+      /* ✅ NEW: read selected text only */
+    speakSelectionBtn.addEventListener("click", () => {
+    const selectedText = window.getSelection().toString().trim();
+    if (!selectedText) return;
+
+    utterance.text = selectedText;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+  });
+
+
+
+
+
+    // end of new code
+
+    function updateButtonState() {
+      prevBtn.disabled = currentAudioIndex === 0;
+      nextBtn.disabled = currentAudioIndex === Sentences.length - 1;
+    }
+
+    function displayData() {
+      const s = Sentences[currentAudioIndex];
+
+      q.textContent = `${currentAudioIndex + 1}/${Sentences.length}`;
+      refer_to.textContent = s.refer_to || "";
+      back_to.textContent = s.back_to || "";
+
+      // Toggle label visibility
+      const referToContainer = document.getElementById("refer_to_container");
+      const backToContainer = document.getElementById("back_to_container");
+      referToContainer.style.display = s.refer_to?.trim() ? "block" : "none";
+      backToContainer.style.display = s.back_to?.trim() ? "block" : "none";
+
+      keyWords.textContent = s.keyWord || "";
+      speaker.textContent = s.speaker || "";
+      def.textContent = s.definition || "";
+      english.innerHTML = s.english || "";
+      arabic.innerHTML = s.arabic || "";
+      audio.src = s.audio || "";
+      answer.innerHTML = s.answer || "";
+    //  questionBasedOnAudio.innerHTML = s.audioQuestion || "";
+          questionBasedOnAudio.innerHTML = s.audioQuestion?.trim()
+        ? `<details>
+            <summary>Question</summary>
+            ${s.audioQuestion}
+          </details>`
+        : "";
+
+      // Show or hide detail sections
+      answerDetails.style.display = s.answer?.trim() ? "block" : "none";
+      definitionDetails.style.display = s.definition?.trim() ? "block" : "none";
+      englishDetails.style.display = s.english?.trim() ? "block" : "none";
+      arabicDetails.style.display = s.arabic?.trim() ? "block" : "none";
+
+      // ✅ Always show image if source exists
+      if (s.Image && s.Image.trim() !== "" && s.Image !== ".jpg") {
+        image.src = s.Image;
+        image.style.display = "block";
+        illustrationDetails.style.display = "block";
+      } else {
+        image.removeAttribute("src");
+        image.style.display = "none";
+        illustrationDetails.style.display = "none";
+      }
+
+      updateButtonState();
+    }
+
+    function resetDetails() {
+      definitionDetails.open = false;
+      englishDetails.open = false;
+      arabicDetails.open = false;
+      answerDetails.open = false;
+    }
+
+    function nextSentence() {
+      if (currentAudioIndex < Sentences.length - 1) {
+        currentAudioIndex++;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    function prevSentence() {
+      if (currentAudioIndex > 0) {
+        currentAudioIndex--;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    nextBtn.addEventListener("click", nextSentence);
+    prevBtn.addEventListener("click", prevSentence);
+
+    document.getElementById("search").addEventListener("click", () => {
+      const index = parseInt(audioIndexInput.value, 10) - 1;
+      if (index >= 0 && index < Sentences.length) {
+        currentAudioIndex = index;
+        displayData();
+      } else {
+        alert(`Enter a number between 1 and ${Sentences.length}`);
+      }
+    });
+
+    audioIndexInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("search").click();
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight") nextSentence();
+      if (e.key === "ArrowLeft") prevSentence();
+    });
+
+    displayData();
+  </script>
+</body>
+</html>
